@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Leaderboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#111827;
+  color:white;
+  text-align:center;
+}
+.box{
+  max-width:480px;
+  margin:20px auto;
+  padding:24px;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,.3);
+  background:rgba(255,255,255,.05);
+}
+.gold{
+  box-shadow:0 0 18px gold;
+  animation:glow 2s infinite;
+}
+@keyframes glow{50%{box-shadow:0 0 30px gold;}}
+ul{list-style:none;padding:0;}
+li{margin:8px 0;}
+.small{font-size:14px;opacity:.8;}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>🏆 Top 5 วันนี้</h2>
+  <ul id="board"></ul>
+  <div id="stats" class="small"></div>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+  projectId: "YOUR_PROJECT"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const today=new Date().toLocaleDateString("th-TH");
+
+db.ref("scores").on("value",snap=>{
+ let all=[];
+ snap.forEach(s=>all.push(s.val()));
+
+ let todayScores=all.filter(x=>x.date===today);
+ todayScores.sort((a,b)=>b.score-a.score);
+
+ board.innerHTML="";
+ todayScores.slice(0,5).forEach((p,i)=>{
+  let li=document.createElement("li");
+  li.innerText=`${i==0?"🥇":i==1?"🥈":i==2?"🥉":""} ${p.name} — ${p.score}`;
+  if(i===0) li.className="gold";
+  board.appendChild(li);
+ });
+
+ stats.innerText=
+  `👥 ผู้เล่นทั้งหมด: ${all.length} คน | ⭐ คะแนนรวม: ${
+    all.reduce((s,x)=>s+x.score,0)
+  }`;
+});
+</script>
+
+</body>
+</html>
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDF4hAibYa5SO1fQPSXJymLtYlxKbTHlF0",
+  authDomain: "quiz-af8ea.firebaseapp.com",
+  projectId: "quiz-af8ea",
+  storageBucket: "quiz-af8ea.firebasestorage.app",
+  messagingSenderId: "434291038647",
+  appId: "1:434291038647:web:e9cdcf623a569646083032",
+  measurementId: "G-H6L1QR4YTX"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
